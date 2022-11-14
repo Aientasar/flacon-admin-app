@@ -1,12 +1,22 @@
 import MOCK_DATA from "./MOCK_DATA.json";
 
+let statusCode = {
+  401: "Unauthorised user,request denied",
+  400: "Invalid Data format,please provide data properly",
+  405: "Method not allowed",
+  500: "Server error,please try again later",
+  409: "Unable to save Data,duplicate data already exists",
+  404: "No data found with given details",
+  405: "Depnedent data exists for given data,request cannot be processed",
+};
+
 let initState = {
   devices: {
     url: "devices",
     title: "Devices",
     currentPage: 0,
     path: ["devices"],
-    keyName: "IMEINumber",
+    keyName: "deviceId",
     data: {
       deviceId: "",
       IMEINumber: "",
@@ -14,17 +24,16 @@ let initState = {
       ownerId: "",
       vehcileId: "",
       activationDate: 0,
-      enable: true,
+      itemEnable: true,
       dateCreated: 0,
       dateUpdated: 0,
     },
-    apiCallData: MOCK_DATA,
-    apiData: MOCK_DATA,
+    apiCallData: [],
+    apiData: [],
     table: [
-      { id: "IMEINumber", name: "INMEI Number", sort: false },
-      { id: "owner", name: "Owner Name", sort: false },
+      { id: "IMEINumber", name: "IMEI Number", sort: false },
       { id: "vehcileId", name: "Vehcile Number", sort: false },
-      { id: "dateCreated", name: "Creation Date", sort: false },
+      { id: "dateCreated", name: "Creation Date", sort: false, isDate: true },
     ],
     form: [
       {
@@ -38,7 +47,7 @@ let initState = {
       {
         name: "speedLimit",
         type: "number",
-        label: "Speed Limit",
+        label: "Speed Limit(KM)",
         placeHolder: "20",
         value: 0,
       },
@@ -47,12 +56,7 @@ let initState = {
         type: "select",
         label: "Select Owner",
         placeHolder: "",
-        options: [
-          { value: "", label: "Select Owner" },
-          { value: "chocolate", label: "Chocolate" },
-          { value: "strawberry", label: "Strawberry" },
-          { value: "vanilla", label: "Vanilla" },
-        ],
+        options: [],
         value: "",
       },
       {
@@ -60,17 +64,13 @@ let initState = {
         type: "select",
         label: "Select Vehcile",
         placeHolder: "",
-        options: [
-          { value: "", label: "Select Vehcile" },
-          { value: "chocolate", label: "Chocolate" },
-          { value: "strawberry", label: "Strawberry" },
-          { value: "vanilla", label: "Vanilla" },
-        ],
+        options: [],
         value: "",
       },
       {
-        name: "enable",
+        name: "itemEnable",
         type: "select",
+        selectValue: "",
         label: "Status",
         placeHolder: "",
         options: [
@@ -86,7 +86,7 @@ let initState = {
         type: "date",
         label: "Activation Date",
         placeHolder: "20",
-        value: "",
+        value: Date.now(),
         isRequired: true,
       },
     ],
@@ -107,7 +107,7 @@ let initState = {
       phoneNumber: "",
       address: "",
       estbDate: "",
-      enable: true,
+      itemEnable: true,
       dateCreated: 0,
       dateUpdated: 0,
       avatar: "",
@@ -118,7 +118,7 @@ let initState = {
       { id: "firstName", name: "First Name", sort: false },
       { id: "lastName", name: "Last Name", sort: false },
       { id: "orgName", name: "Organisation Name", sort: false },
-      { id: "enable", name: "Status", sort: false },
+      { id: "itemEnable", name: "Status", sort: false },
       { id: "dateCreated", name: "Created on", sort: false },
     ],
     form: [
@@ -137,6 +137,15 @@ let initState = {
         placeHolder: "Doe",
         value: "",
         isRequired: true,
+      },
+      {
+        name: "avatar",
+        type: "file",
+        label: "Upload Avatar",
+        placeHolder: "",
+        value: "",
+        tempFile: null,
+        isRequired: false,
       },
       {
         name: "ownerName",
@@ -168,7 +177,7 @@ let initState = {
         value: "",
       },
       {
-        name: "enable",
+        name: "itemEnable",
         type: "select",
         label: "Status",
         placeHolder: "",
@@ -197,12 +206,12 @@ let initState = {
       chasisNo: "",
       builtType: "",
       purchaseDate: "",
-      manufactureDate: "",
+      manufactureDate: 0,
       tyres: 0,
       details: "",
       drivers: [],
       deviceId: "",
-      enable: true,
+      itemEnable: true,
       dateCreated: 0,
       dateUpdated: 0,
       avatar: "",
@@ -214,7 +223,7 @@ let initState = {
       { id: "vehcileType", name: "Vehicle Type", sort: false },
       { id: "builtType", name: "Built type", sort: false },
       { id: "tyres", name: "Tyres", sort: false },
-      { id: "enable", name: "Status", sort: false },
+      { id: "itemEnable", name: "Status", sort: false },
       { id: "dateCreated", name: "Created on", sort: false },
     ],
     form: [
@@ -313,7 +322,7 @@ let initState = {
         isAdminOnly: true,
       },
       {
-        name: "enable",
+        name: "itemEnable",
         type: "select",
         label: "Status",
         placeHolder: "",
@@ -342,11 +351,11 @@ let initState = {
       dob: "",
       sex: 0,
       dlNumber: "",
-      joiningDate: "",
+      joiningDate: 0,
       phoneNumber: "",
       address: "",
       vehciles: [],
-      enable: true,
+      itemEnable: true,
       dateCreated: 0,
       dateUpdated: 0,
       avatar: "",
@@ -358,7 +367,7 @@ let initState = {
       { id: "lastName", name: "Last Name", sort: false },
       { id: "dlNumber", name: "License Number", sort: false },
       { id: "tyres", name: "Tyres", sort: false },
-      { id: "enable", name: "Status", sort: false },
+      { id: "itemEnable", name: "Status", sort: false },
       { id: "dateCreated", name: "Created on", sort: false },
     ],
     form: [
@@ -435,7 +444,7 @@ let initState = {
         isMulti: true,
       },
       {
-        name: "enable",
+        name: "itemEnable",
         type: "select",
         label: "Status",
         placeHolder: "",
@@ -463,7 +472,7 @@ let initState = {
       details: "",
       // messages: [{ date: "", message: "", isAdmin: false }],
       messages: [],
-      status: false,
+      ticketStatus: false,
       dateCreated: 0,
       dateUpdated: 0,
     },
@@ -474,7 +483,7 @@ let initState = {
       { id: "subject", name: "Subject", sort: false },
       { id: "ownerId", name: "Owner Name", sort: false },
       { id: "ticketId", name: "Ticket ID", sort: false },
-      { id: "enable", name: "Status", sort: false },
+      { id: "ticketStatus", name: "Status", sort: false },
       { id: "dateUpdated", name: "Updated on", sort: false },
     ],
     form: [
@@ -497,7 +506,7 @@ let initState = {
         title: ["subject"],
         subTitles: [],
       },
-      rightId: "status",
+      rightId: "ticketStatus",
     },
   },
 
@@ -510,9 +519,12 @@ let initState = {
       packageId: "",
       ownerId: "",
       packageName: "",
-      packagePrice: 0.0,
+      pricePerDevice: 0.0,
       packageTenure: 0,
-      enable: true,
+      gracePeriod: 0,
+      deviceCount: 0,
+      isRenewable: true,
+      itemEnable: true,
       activationDate: 0,
       dateCreated: 0,
       dateUpdated: 0,
@@ -521,9 +533,9 @@ let initState = {
     apiData: [],
     table: [
       { id: "packageName", name: "Name", sort: false },
-      { id: "packagePrice", name: "Price", sort: false },
+      { id: "pricePerDevice", name: "Price/Device", sort: false },
       { id: "packageTenure", name: "Tenure(Days)", sort: false },
-      { id: "enable", name: "Status", sort: false },
+      { id: "itemEnable", name: "Status", sort: false },
       { id: "dateCreated", name: "Created on", sort: false },
     ],
     form: [
@@ -536,9 +548,9 @@ let initState = {
         isRequired: true,
       },
       {
-        name: "packagePrice",
+        name: "pricePerDevice",
         type: "number",
-        label: "Price (USD)",
+        label: "Price/Device (USD)",
         placeHolder: "10",
         value: 0,
         isRequired: true,
@@ -552,11 +564,32 @@ let initState = {
         isRequired: true,
       },
       {
-        name: "enable",
-        type: "checkbox",
-        label: "Active",
-        placeHolder: "0",
-        value: true,
+        name: "gracePeriod",
+        type: "number",
+        label: "Grace Period (Days)",
+        placeHolder: "60",
+        value: 0,
+        isRequired: true,
+      },
+      {
+        name: "deviceCount",
+        type: "number",
+        label: "Device Count",
+        placeHolder: "10",
+        value: 0,
+        isRequired: true,
+      },
+      {
+        name: "itemEnable",
+        type: "select",
+        label: "Status",
+        placeHolder: "",
+        options: [
+          { value: true, label: "Enable" },
+          { value: false, label: "Disable" },
+        ],
+        value: "",
+        isRequired: true,
       },
       {
         name: "activationDate",
@@ -569,4 +602,4 @@ let initState = {
   },
 };
 
-export { initState };
+export { initState, statusCode };
